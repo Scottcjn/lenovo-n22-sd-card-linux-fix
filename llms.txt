@@ -1,0 +1,19 @@
+# lenovo-n22-sd-card-linux-fix
+
+> DKMS package that makes the SD card slot work on the Lenovo N22 (model 80S6, Intel Celeron N3050 Braswell, SD controller PCI 8086:2296) under Linux. Packages patches 1/3 and 2/3 by Nelson Johnson (LKML, 2026-03-16) applied to the stock sdhci-pci driver. Tested on Debian 13, kernel 6.12.117.
+
+Use this when: a Lenovo N22 running Linux does not detect SD/microSD cards; dmesg repeats "sdhci-pci 0000:00:12.0: SDHCI controller found [8086:2296]" without "mmcN: SDHCI controller on PCI"; 0000:00:12.0 sits in /sys/kernel/debug/devices_deferred.
+
+Fix in one line: git clone https://github.com/Scottcjn/lenovo-n22-sd-card-linux-fix && cd lenovo-n22-sd-card-linux-fix && sudo ./install.sh
+
+Do not use on other machines: the installer checks DMI (LENOVO / N22) and the patches are DMI-scoped. Patch 3/3 (sdhci-acpi INT33BB exclusion) is intentionally omitted because sdhci-acpi also drives the eMMC boot disk.
+
+## Files
+- [README.md](README.md): symptoms, cause, install, Secure Boot, uninstall, status
+- [install.sh](install.sh): DMI check, installs dkms + headers, builds, reloads sdhci_pci
+- [fetch-sources.sh](fetch-sources.sh): fetch sdhci-pci sources for a different kernel version
+- [dkms/patches/](dkms/patches/): the two upstream patches
+- [uninstall.sh](uninstall.sh): remove the DKMS module
+
+## Upstream
+- Cover letter: https://lkml.iu.edu/hypermail/linux/kernel/2603.2/01944.html
