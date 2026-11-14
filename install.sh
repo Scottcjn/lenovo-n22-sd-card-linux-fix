@@ -19,6 +19,12 @@ dkms remove n22-sdhci-pci/1.0 --all >/dev/null 2>&1 || true
 rm -rf "$SRC"; cp -r "$(dirname "$0")/dkms" "$SRC"
 dkms add n22-sdhci-pci/1.0
 dkms install n22-sdhci-pci/1.0
+# The boot image (initramfs) carries its own copy of sdhci-pci because the eMMC
+# needs SDHCI at boot. Rebuild it, or the stock driver loads at boot and the fix
+# only works after a manual reload.
+if command -v update-initramfs >/dev/null; then update-initramfs -u -k "$(uname -r)"
+elif command -v dracut >/dev/null; then dracut -f
+else echo "WARNING: rebuild your initramfs yourself, or the fix will not apply at boot"; fi
 modprobe -r sdhci_pci 2>/dev/null && modprobe sdhci_pci || echo "Could not reload sdhci_pci now; reboot to activate."
 sleep 3
 dmesg | grep -E 'mmc[0-9]+: (SDHCI controller on PCI|new .*card)' | tail -3

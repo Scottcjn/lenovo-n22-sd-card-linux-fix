@@ -42,7 +42,8 @@ The script:
 1. Checks the machine is a Lenovo N22.
 2. Installs `dkms`, `patch` and the headers for your running kernel.
 3. Copies `dkms/` to `/usr/src/n22-sdhci-pci-1.0` and builds the module. The patches in `dkms/patches/` are applied to pristine kernel sources at build time.
-4. Reloads `sdhci_pci`, so no reboot is needed.
+4. Rebuilds the initramfs. **This step matters:** the boot image carries its own copy of `sdhci-pci` because the eMMC needs it at boot. Without the rebuild, the stock driver loads at every boot and the fix only works after a manual `modprobe -r sdhci_pci && modprobe sdhci_pci`.
+5. Reloads `sdhci_pci`, so no reboot is needed.
 
 Check it worked:
 ```
@@ -68,6 +69,7 @@ sudo ./uninstall.sh && sudo reboot
 
 ## Status
 - Tested on **one** N22 unit (Debian 13, 6.12.117). Card detected at SDR104, ext4 card mounted and auto-mounting from `/etc/fstab`.
+- Survives reboot: after the initramfs rebuild the card is detected at boot (`mmc2: SDHCI controller on PCI` at ~15 s) and mounts from `/etc/fstab`. Check the loaded module is the patched one with `cat /sys/module/sdhci_pci/taint` (shows `OE`).
 - Hot-swap: card removal and re-insertion are detected within about 1 second (`mmc2: card aaaa removed` / `new ... SDXC card`).
 - Tip: pulling a card while it is mounted is like yanking a USB stick (`EXT4-fs ... I/O error`). For a card you swap often, add `x-systemd.automount,nofail` to its `/etc/fstab` line: it then mounts on first access after you re-insert it, and systemd unmounts it when the card is removed.
 - Not yet tested: suspend/resume with a card inserted, Ubuntu kernels, other Braswell laptops (N23, 100S, etc.). Reports are welcome as issues.
