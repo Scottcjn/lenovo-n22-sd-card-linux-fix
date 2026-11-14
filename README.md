@@ -68,7 +68,9 @@ sudo ./uninstall.sh && sudo reboot
 
 ## Status
 - Tested on **one** N22 unit (Debian 13, 6.12.117). Card detected at SDR104, ext4 card mounted and auto-mounting from `/etc/fstab`.
-- Not yet tested: hot-swapping cards repeatedly, suspend/resume with a card inserted, Ubuntu kernels, other Braswell laptops (N23, 100S, etc.). Reports are welcome as issues.
+- Hot-swap: card removal and re-insertion are detected within about 1 second (`mmc2: card aaaa removed` / `new ... SDXC card`).
+- Tip: pulling a card while it is mounted is like yanking a USB stick (`EXT4-fs ... I/O error`). For a card you swap often, add `x-systemd.automount,nofail` to its `/etc/fstab` line: it then mounts on first access after you re-insert it, and systemd unmounts it when the card is removed.
+- Not yet tested: suspend/resume with a card inserted, Ubuntu kernels, other Braswell laptops (N23, 100S, etc.). Reports are welcome as issues.
 - When the upstream patches land in mainline and your distro kernel, uninstall this. You won't need it anymore.
 
 ## Keywords
